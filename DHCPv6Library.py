@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from scapy.all import *
+from scapy import *
 import random
 
 class DHCPv6Library:
