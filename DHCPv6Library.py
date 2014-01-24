@@ -11,7 +11,7 @@ class DHCPv6Library:
 		M=16**2
 		self.mac = "b2:39:4b:b8:45:" + ":".join("%x" % random.randint(0, M) for i in range(1))
  
-	def send_solicit(self, mac="", type="IAPD", t1=0, t2=0, srcIp ="fe80::20e:7bff:febb:a38a", rapidCommit=False):
+	def send_solicit(self, mac="", type="IAPD", t1=0, t2=0, srcIp ="fe80::20e:7bff:febb:a38a", rapidCommit=False, hint=""):
 		if mac:
 			self.mac = mac
 		self.clientid = DHCP6OptClientId()
@@ -32,7 +32,12 @@ class DHCPv6Library:
 			if type == "IANA":
 				solicitPacket = (self.ether/self.ipv6/self.udp/solicit/self.clientid/self.iana/self.elapsedTime)
 			else:
-				solicitPacket = (self.ether/self.ipv6/self.udp/solicit/self.clientid/self.iapd/self.elapsedTime)
+				if hint:
+					print "Hint Enabled: " + hint
+					self.iapd.iapdopt = DHCP6OptIAPrefix(prefix=hint, preflft=300, validlft=300, optlen=25, plen=64)
+					solicitPacket = (self.ether/self.ipv6/self.udp/solicit/self.clientid/self.iapd/self.elapsedTime)
+				else:	
+					solicitPacket = (self.ether/self.ipv6/self.udp/solicit/self.clientid/self.iapd/self.elapsedTime)
 
 		self.ans,unans=srp(solicitPacket, iface=self.__interface, timeout=2)
 
